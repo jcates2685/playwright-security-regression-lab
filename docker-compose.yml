@@ -1,8 +1,0 @@
-# Placeholder: local lab environment
-# Will be used to run OWASP Juice Shop locally via Docker
-
-services:
-  juice-shop:
-    image: bkimminich/juice-shop
-    ports:
-      - "3000:3000"
