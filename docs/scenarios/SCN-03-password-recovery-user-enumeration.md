@@ -1,3 +1,12 @@
+---
+id: SCN-03
+owasp_primary: "A07:2025 - Authentication Failures"
+owasp_secondary:
+  - "A06:2025 - Insecure Design"
+verified_by: GitHub Copilot
+verified_on: 2026-02-02
+---
+
 # SCN-03: Password recovery reveals whether an account exists (user enumeration)
 
 ## Summary
@@ -43,3 +52,9 @@ The API response (or UI logic) differs for existing vs non-existing accounts in 
 - Make the password recovery flow behavior consistent regardless of whether the email exists.
 - Always return a generic, non-identifying response (and/or a generic message such as “If an account exists, instructions will be sent”).
 - Avoid revealing user-specific security questions prior to authentication or additional verification.
+
+## OWASP Top 10 (2025) Mapping
+- Categories:
+  - **A07:2025 - Authentication Failures** — Behavioral differences in the password recovery flow allow user enumeration (disclosing account existence).
+  - **A06:2025 - Insecure Design** — The recovery flow's UI/UX design leaks information; a secure design should provide consistent responses and avoid information disclosure.
+- References: https://owasp.org/Top10/2025/A07_2025-Authentication_Failures/, https://owasp.org/Top10/2025/A06_2025-Insecure_Design/

@@ -1,3 +1,9 @@
+---
+id: SCN-01
+owasp_primary: "A01:2025 - Broken Access Control"
+owasp_secondary: []
+---
+
 # SCN-01: Track Order lets one user view another user’s order (IDOR)
 
 ## What should be true
@@ -49,3 +55,8 @@ Enforce authorization on `/rest/track-order/<orderId>`:
 Given a User A orderId, when User B requests `/rest/track-order/<orderId>`, assert:
 - status is 401/403
 - response does not contain order details (products, totalPrice, addressId, paymentId)
+
+## OWASP Top 10 (2025) Mapping
+- Category: **A01:2025 - Broken Access Control**
+- Rationale: IDOR allows an authenticated user to read another user’s order details without any ownership checks.
+- Reference: https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/

@@ -1,3 +1,13 @@
+---
+id: SCN-02
+owasp_primary: "A06:2025 - Insecure Design"
+owasp_secondary:
+  - "A04:2025 - Cryptographic Failures"
+  - "A10:2025 - Mishandling of Exceptional Conditions"
+verified_by: GitHub Copilot
+verified_on: 2026-02-02
+---
+
 # SCN-02: Change Password has unsafe request design and brittle error handling
 
 ## Summary
@@ -58,3 +68,10 @@ Repeat with current password blank/missing.
 - Redact password values in any logs or notes:
   - `current=<redacted>&new=<redacted>&repeat=<redacted>`
 - Never commit tokens or authorization headers.
+
+## OWASP Top 10 (2025) Mapping
+- Categories:
+  - **A04:2025 - Cryptographic Failures** — Passwords in URLs risk exposure (logs, referrers, history).
+  - **A06:2025 - Insecure Design** — Using GET for state-changing operations and placing secrets in URLs are design-level issues that should be addressed at the architecture/UX level.
+  - **A10:2025 - Mishandling of Exceptional Conditions** — Unexpected `500` responses indicate unhandled exceptions and brittle error handling.
+- References: https://owasp.org/Top10/2025/A04_2025-Cryptographic_Failures/, https://owasp.org/Top10/2025/A06_2025-Insecure_Design/, https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/
