@@ -18,6 +18,12 @@ Start here:
 1. `docs/rca-cheat-sheet.md`
 2. `TESTING.md` (explains test suites and expected failures)
 3. `docs/scenarios/` (scenario writeups as they’re added)
+## Scenarios and Tests
 
+**Scenarios** (`docs/scenarios/`) describe security vulnerabilities found in the application. Each scenario documents what went wrong, how to reproduce it, and the OWASP category.
+
+**Test cases** (`docs/test-cases/`) translate scenarios into automated checks. Each test case is linked to the scenario it guards against, ensuring regressions are caught early.
+
+The workflow is: **find vulnerability → write scenario → create test case → prevent regression**.
 ## Project status
 Early scaffold. Next milestone: bring up Juice Shop via Docker Compose and add the first “expected-to-pass” security hygiene test.

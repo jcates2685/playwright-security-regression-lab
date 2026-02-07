@@ -1,0 +1,26 @@
+{
+  "name": "security-lab",
+  "version": "1.0.0",
+  "description": "A small, local-only security testing lab built around intentionally vulnerable applications (starting with OWASP Juice Shop).",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jcates2685/playwright-security-regression-lab.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jcates2685/playwright-security-regression-lab/issues"
+  },
+  "homepage": "https://github.com/jcates2685/playwright-security-regression-lab#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^25.2.1"
+  }
+}
