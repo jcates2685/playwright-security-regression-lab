@@ -4,6 +4,7 @@ This lab runs intentionally vulnerable applications locally only for learning an
 No external systems are targeted.
 
 ## Requirements
+
 - Git (for version control)
 - Docker Desktop (for running disposable local services)
 
@@ -27,6 +28,7 @@ To start fresh:
     docker compose -f env/docker-compose.yml up -d
 
 ## Safety and scope notes
+
 - Targets run only on localhost
 - No scanning or testing of external systems
 - Containers are disposable and can be removed at any time

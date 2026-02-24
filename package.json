@@ -1,26 +1,46 @@
 {
-  "name": "security-lab",
-  "version": "1.0.0",
-  "description": "A small, local-only security testing lab built around intentionally vulnerable applications (starting with OWASP Juice Shop).",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
-  "scripts": {},
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jcates2685/playwright-security-regression-lab.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/jcates2685/playwright-security-regression-lab/issues"
-  },
-  "homepage": "https://github.com/jcates2685/playwright-security-regression-lab#readme",
-  "devDependencies": {
-    "@playwright/test": "^1.58.2",
-    "@types/node": "^25.2.1"
-  }
+    "name": "security-lab",
+    "version": "1.0.0",
+    "description": "A small, local-only security testing lab built around intentionally vulnerable applications (starting with OWASP Juice Shop).",
+    "main": "index.js",
+    "directories": {
+        "doc": "docs"
+    },
+    "scripts": {
+        "test": "playwright test",
+        "test:ui": "playwright test --ui",
+        "test:evidence": "playwright test --grep @evidence-pass",
+        "test:invariants": "playwright test --grep @secure-invariant-fail",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "format": "prettier \"**/*.{ts,js,mjs,cjs,json,yml,yaml}\" --write",
+        "format:check": "prettier \"**/*.{ts,js,mjs,cjs,json,yml,yaml}\" --check",
+        "lab:up": "docker compose -f env/docker-compose.yml up -d",
+        "lab:down": "docker compose -f env/docker-compose.yml down",
+        "lab:reset": "docker compose -f env/docker-compose.yml down -v && docker compose -f env/docker-compose.yml up -d",
+        "lab:logs": "docker compose -f env/docker-compose.yml logs -f"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jcates2685/playwright-security-regression-lab.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "bugs": {
+        "url": "https://github.com/jcates2685/playwright-security-regression-lab/issues"
+    },
+    "homepage": "https://github.com/jcates2685/playwright-security-regression-lab#readme",
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "@playwright/test": "^1.58.2",
+        "@types/node": "^25.2.1",
+        "eslint": "^10.0.0",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-playwright": "^2.5.1",
+        "globals": "^17.3.0",
+        "prettier": "^3.8.1",
+        "typescript-eslint": "^8.56.0"
+    }
 }
