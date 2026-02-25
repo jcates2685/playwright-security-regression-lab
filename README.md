@@ -6,8 +6,8 @@ This repo is **not** a pentesting guide and does **not** target real systems. Th
 
 - security-flavored testing (abuse cases + invariants)
 - root cause analysis (RCA) and clear writeups
-- regression prevention (tests that encode “this must never happen”)
-- a purple-team loop: **break → observe → explain → prevent → re-test**
+- regression detection (tests that encode "this happened and remains detectable")
+- a purple-team loop: **break -> observe -> explain -> detect -> re-test**
 
 ## Scope and safety
 
@@ -29,7 +29,7 @@ Start here:
 
 **Test cases** (`docs/test-cases/`) translate scenarios into automated checks. Each test case is linked to the scenario it guards against, ensuring regressions are caught early.
 
-The workflow is: **find vulnerability → write scenario → create test case → prevent regression**.
+The workflow is: **find vulnerability -> write scenario -> create test case -> detect regression**.
 
 ## Project status
 
@@ -45,3 +45,4 @@ Current state:
 Near-term focus:
 - continue improving deterministic setup for stateful scenarios
 - tighten scenario-to-test-case traceability and CI suite wiring
+
