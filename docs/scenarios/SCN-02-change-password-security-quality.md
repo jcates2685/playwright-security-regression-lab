@@ -1,77 +1,94 @@
 ---
 id: SCN-02
-owasp_primary: "A06:2025 - Insecure Design"
+owasp_primary: 'A06:2025 - Insecure Design'
 owasp_secondary:
-  - "A04:2025 - Cryptographic Failures"
-  - "A10:2025 - Mishandling of Exceptional Conditions"
-verified_by: GitHub Copilot
-verified_on: 2026-02-02
+    - 'A04:2025 - Cryptographic Failures'
+    - 'A10:2025 - Mishandling of Exceptional Conditions'
 ---
 
-# SCN-02: Change Password has unsafe request design and brittle error handling
+# SCN-02: Change Password uses unsafe request design
 
 ## Summary
-The Change Password flow sends sensitive password values in the URL query string and returns HTTP 500 for common user input errors (wrong/missing current password). This is primarily a security-quality issue: unsafe handling of secrets + inconsistent error handling.
+
+The Change Password capability uses `GET /rest/user/change-password` and places password values in URL query parameters. This is the primary vulnerability. In API-direct calls, invalid inputs can return `500`, indicating brittle exception handling.
 
 ## What should be true (invariants)
-1. Passwords must not be placed in URLs (query strings).
-2. Invalid user input must return a controlled 4xx response (e.g., 400/401/403), not a 500 server error.
-3. State-changing operations should not use GET.
+
+1. Passwords must never be placed in URLs (query strings).
+2. State-changing operations must not use GET.
+3. Invalid input should return controlled 4xx responses, not server errors.
 
 ## What we observed
-- The UI issues a request like:
-  - `GET /rest/user/change-password?current=<...>&new=<...>&repeat=<...>`
-- Entering a wrong current password results in:
-  - `500 Internal Server Error`
-- Leaving the current password blank/missing also results in:
-  - `500 Internal Server Error`
 
-## Reproduction (via UI, no special tooling)
-Preconditions:
-- Logged in as a normal user (User A or User B)
+### UI-observed behavior (authenticated browser flow)
 
-Steps:
-1. Navigate to Change Password.
-2. Enter a wrong current password, enter a new password + repeat, submit.
-3. Observe the request in Network → Fetch/XHR and confirm:
-   - endpoint is `GET /rest/user/change-password` with password values in query params
-   - response status is 500
+- Request shape:
+    - `GET /rest/user/change-password?current=<...>&new=<...>&repeat=<...>`
+- Wrong current password returns `401` in current local runs.
+- Missing current password may be blocked client-side before submit (no request), depending on UI state.
 
-Repeat with current password blank/missing.
+### API-direct behavior (authenticated direct request)
+
+- `GET /rest/user/change-password` with wrong current password can return `500`.
+- `GET /rest/user/change-password` with missing/empty current password can return `500`.
+
+## Reproduction
+
+### A) UI evidence (primary)
+
+1. Log in.
+2. Navigate to Change Password.
+3. Enter wrong current password + new/repeat, submit.
+4. Observe in Network:
+    - method is `GET`
+    - URL contains `current=`, `new=`, `repeat=`
+
+### B) API-direct evidence (error handling)
+
+1. Use an authenticated session/token.
+2. Call:
+    - `GET /rest/user/change-password?current=<wrong>&new=<new>&repeat=<new>`
+    - `GET /rest/user/change-password?new=<new>&repeat=<new>`
+3. Observe `500` in affected runs.
 
 ## Expected result
-- Password change request uses POST/PATCH and places secrets in the request body (not URL).
-- Wrong/missing current password returns a controlled 4xx response with a safe, user-readable error message.
-- Server never throws 500 due to user input validation.
+
+- Endpoint uses POST/PATCH.
+- Password values are sent in request body only.
+- Invalid input/auth failures return stable 4xx responses.
 
 ## Actual result
-- Password change uses GET with secrets in the URL.
-- Wrong/missing current password results in 500.
+
+- Endpoint uses GET with password values in query string.
+- API-direct invalid input can trigger 500.
 
 ## Why this matters (impact)
-- **Secret exposure risk:** URLs are commonly stored in browser history and logged by servers, proxies, and monitoring/telemetry systems.
-- **Reliability / operability risk:** 500 responses for expected user errors create noisy logs and indicate unhandled exceptions.
-- **Security posture risk:** brittle validation paths can lead to inconsistent behavior and complicate incident response.
 
-## Likely root cause (high level)
-- Input validation and error handling for the change-password handler do not properly handle wrong/missing values.
-- Endpoint design uses query string parameters for secrets and an unsafe HTTP method (GET).
+- Secret exposure risk: URLs are logged in browser history, proxies, telemetry, and server logs.
+- Reliability risk: 500 on common invalid input indicates brittle error handling and operational noise.
+- Security posture risk: unsafe method/parameter design increases accidental leakage risk.
+
+## Likely root cause
+
+- Endpoint contract is designed around GET + query-string secrets.
+- Error handling paths for invalid/missing input are inconsistent across execution paths.
 
 ## Suggested remediation
-- Change the endpoint to POST/PATCH.
-- Put `currentPassword`, `newPassword`, `repeatPassword` in the request body.
-- Validate inputs and return consistent 4xx responses for user mistakes.
-- Ensure the UI displays a safe, human-readable error message (no raw object dumps).
-- Add regression tests to ensure invalid inputs never produce 500.
+
+- Move endpoint to POST/PATCH.
+- Put `currentPassword`, `newPassword`, `repeatPassword` in body.
+- Return consistent controlled 4xx responses for invalid input.
+- Add regression checks for method, URL hygiene, and error semantics.
 
 ## Notes for documentation hygiene
-- Redact password values in any logs or notes:
-  - `current=<redacted>&new=<redacted>&repeat=<redacted>`
-- Never commit tokens or authorization headers.
+
+- Redact secrets in any logs:
+    - `current=<redacted>&new=<redacted>&repeat=<redacted>`
+- Never commit auth tokens.
 
 ## OWASP Top 10 (2025) Mapping
-- Categories:
-  - **A04:2025 - Cryptographic Failures** — Passwords in URLs risk exposure (logs, referrers, history).
-  - **A06:2025 - Insecure Design** — Using GET for state-changing operations and placing secrets in URLs are design-level issues that should be addressed at the architecture/UX level.
-  - **A10:2025 - Mishandling of Exceptional Conditions** — Unexpected `500` responses indicate unhandled exceptions and brittle error handling.
+
+- **A04:2025 - Cryptographic Failures**: secrets in URLs increase disclosure risk.
+- **A06:2025 - Insecure Design**: state-changing operation via GET with query-string credentials.
+- **A10:2025 - Mishandling of Exceptional Conditions**: API-direct invalid-input flows can trigger 500.
 - References: https://owasp.org/Top10/2025/A04_2025-Cryptographic_Failures/, https://owasp.org/Top10/2025/A06_2025-Insecure_Design/, https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/
