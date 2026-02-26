@@ -44,7 +44,6 @@ export class CheckoutPage {
         await this.page.getByLabel('Expiry Month').selectOption('4');
         await this.page.getByLabel('Expiry Year').selectOption('2087');
         await this.page.getByRole('button', { name: 'Submit' }).click();
-    
     }
 
     async selectFirstRadioIfPresent(): Promise<boolean> {
