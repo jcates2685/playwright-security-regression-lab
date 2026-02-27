@@ -157,9 +157,7 @@ async function seedWithOneRepairAttempt(user: TestUser, storagePath: string) {
 
 export default async function globalSetup(_config: FullConfig) {
     if (USING_DEFAULT_TEST_PASSWORDS && !isLocalLabUrl(BASE_URL)) {
-        throw new Error(
-            `Refusing to run with default test passwords against non-local BASE_URL: ${BASE_URL}. Set USER_*_PASSWORD env vars.`,
-        );
+        throw new Error(`Refusing to run with default test passwords against non-local BASE_URL: ${BASE_URL}. Set USER_*_PASSWORD env vars.`);
     }
 
     if (!existsSync(AUTH_DIR)) mkdirSync(AUTH_DIR);
