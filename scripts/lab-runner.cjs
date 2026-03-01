@@ -74,15 +74,11 @@ function waitForServices(timeoutSeconds = HEALTHCHECK_TIMEOUT_SECONDS) {
         attemptCount++;
 
         // Check if server is responding via HTTP
-        const result = spawnSync(
-            'curl',
-            ['--silent', '--fail', '--max-time', '5', BASE_URL],
-            {
-                cwd: repoRoot,
-                stdio: 'pipe',
-                encoding: 'utf-8',
-            }
-        );
+        const result = spawnSync('curl', ['--silent', '--fail', '--max-time', '5', BASE_URL], {
+            cwd: repoRoot,
+            stdio: 'pipe',
+            encoding: 'utf-8',
+        });
 
         if (result.status === 0) {
             if (DEBUG) {
@@ -133,7 +129,7 @@ function freshLab() {
     dockerCompose(['down', '-v', '--remove-orphans']);
     removeArtifacts();
     dockerCompose(['up', '-d', '--force-recreate']);
-    
+
     if (!waitForServices()) {
         process.exit(1);
     }
@@ -144,14 +140,14 @@ function freshLab() {
 function runPlaywright(extraArgs) {
     const cmd = process.execPath;
     const args = [localPlaywrightEntry, 'test', ...extraArgs];
-    
+
     if (DEBUG) {
         console.log(`[DEBUG] Starting Playwright tests...`);
         console.log(`[DEBUG] Command: ${cmd} ${args.join(' ')}`);
         console.log(`[DEBUG] Base URL: ${BASE_URL}`);
         console.log(`[DEBUG] Working directory: ${repoRoot}`);
     }
-    
+
     console.log('\n▶ Running test suite against ' + BASE_URL);
     const result = spawnSync(cmd, args, {
         cwd: repoRoot,
@@ -170,7 +166,7 @@ function runPlaywright(extraArgs) {
         }
         process.exit(result.status ?? 1);
     }
-    
+
     console.log('\n✓ Tests completed successfully.');
 }
 
@@ -180,7 +176,7 @@ function freshTest(extraArgs) {
     console.log('\n╔════════════════════════════════════════════════════════╗');
     console.log('║          FRESH LAB SETUP & TEST EXECUTION              ║');
     console.log('╚════════════════════════════════════════════════════════╝\n');
-    
+
     freshLab();
     console.log('\n✓ Lab environment is ready.\n');
 

@@ -90,7 +90,7 @@ async function loginViaUI(page: Page, baseURL: string, user: TestUser) {
     await page.locator('#password').fill(user.password);
     await page.locator('#loginButton').click();
     await page.waitForLoadState('networkidle');
-    
+
     // Navigate to home page and wait for products to load
     await page.goto(`${baseURL}/`);
     // Wait for product cards to be visible - ensures products API has responded and rendered

@@ -18,16 +18,19 @@ export class CheckoutPage {
 
     async openCheckout() {
         await this.page.locator('button[aria-label="Show the shopping cart"]').click();
-        
+
         // Wait for checkout button to be visible and enabled
         const checkoutButton = this.page.locator('#checkoutButton');
-        
+
         // Use waitForFunction to poll until button is not disabled
-        await this.page.waitForFunction(() => {
-            const btn = document.getElementById('checkoutButton') as HTMLButtonElement;
-            return btn && !btn.hasAttribute('disabled');
-        }, { timeout: 15_000 });
-        
+        await this.page.waitForFunction(
+            () => {
+                const btn = document.getElementById('checkoutButton') as HTMLButtonElement;
+                return btn && !btn.hasAttribute('disabled');
+            },
+            { timeout: 15_000 },
+        );
+
         await checkoutButton.click();
     }
 
