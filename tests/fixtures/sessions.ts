@@ -90,6 +90,11 @@ async function loginViaUI(page: Page, baseURL: string, user: TestUser) {
     await page.locator('#password').fill(user.password);
     await page.locator('#loginButton').click();
     await page.waitForLoadState('networkidle');
+    
+    // Navigate to home page and wait for products to load
+    await page.goto(`${baseURL}/`);
+    // Wait for product cards to be visible - ensures products API has responded and rendered
+    await page.locator('mat-card').first().waitFor({ state: 'visible', timeout: 15_000 });
 }
 
 export async function newAuthedContext(browser: Browser, baseURL: string, user: TestUser): Promise<{ context: BrowserContext; page: Page }> {

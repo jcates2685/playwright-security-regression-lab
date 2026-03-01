@@ -11,6 +11,9 @@
         "test:ui": "playwright test --ui",
         "test:evidence": "playwright test --grep @evidence-pass",
         "test:invariants": "playwright test --grep @secure-invariant-fail",
+        "test:fresh": "node scripts/lab-runner.cjs test",
+        "test:fresh:evidence": "node scripts/lab-runner.cjs test --grep @evidence-pass",
+        "test:fresh:invariants": "node scripts/lab-runner.cjs test --grep @secure-invariant-fail",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "format": "prettier \"**/*.{ts,js,mjs,cjs,json,yml,yaml}\" --write",
@@ -18,7 +21,9 @@
         "lab:up": "docker compose -f env/docker-compose.yml up -d",
         "lab:down": "docker compose -f env/docker-compose.yml down",
         "lab:reset": "docker compose -f env/docker-compose.yml down -v && docker compose -f env/docker-compose.yml up -d",
-        "lab:logs": "docker compose -f env/docker-compose.yml logs -f"
+        "lab:logs": "docker compose -f env/docker-compose.yml logs -f",
+        "lab:fresh": "node scripts/lab-runner.cjs fresh",
+        "lab:clean": "node scripts/lab-runner.cjs clean"
     },
     "repository": {
         "type": "git",
