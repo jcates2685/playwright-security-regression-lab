@@ -1,4 +1,4 @@
-import type { Browser, BrowserContext, Page } from '@playwright/test';
+import type { APIRequestContext, Browser, BrowserContext, Page } from '@playwright/test';
 import { request } from '@playwright/test';
 import type { TestUser } from './users';
 import { dismissOverlays } from '../support/ui/overlays';
@@ -82,6 +82,33 @@ async function ensureUserExists(baseURL: string, user: TestUser) {
     await api.dispose();
 }
 
+async function loginViaApi(api: APIRequestContext, user: TestUser): Promise<{ token: string; basketId: string }> {
+    const loginRes = await api.post('/rest/user/login', {
+        data: { email: user.email, password: user.password },
+    });
+
+    if (!loginRes.ok()) {
+        const body = await loginRes.text().catch(() => '');
+        throw new Error(`Login failed for ${user.email}: ${loginRes.status()} ${body}`);
+    }
+
+    const loginBody = await loginRes.json().catch(() => null);
+    const token = loginBody?.authentication?.token;
+    const basketId = loginBody?.authentication?.bid;
+
+    if (!token) {
+        throw new Error(`Authentication token not found in login response for ${user.email}`);
+    }
+    if (!basketId) {
+        throw new Error(`Basket id not found in login response for ${user.email}`);
+    }
+
+    return {
+        token: String(token),
+        basketId: String(basketId),
+    };
+}
+
 async function loginViaUI(page: Page, baseURL: string, user: TestUser) {
     await page.goto(`${baseURL}/#/login`);
     await dismissOverlays(page);
@@ -108,4 +135,19 @@ export async function newAuthedContext(browser: Browser, baseURL: string, user: 
     await loginViaUI(page, url, user);
 
     return { context, page };
+}
+
+export async function newAuthedApiContext(baseURL: string, user: TestUser): Promise<{ api: APIRequestContext; token: string; basketId: string }> {
+    const url = normalizeBaseURL(baseURL);
+
+    await ensureUserExists(url, user);
+    const api = await request.newContext({
+        baseURL: url,
+        extraHTTPHeaders: {
+            accept: 'application/json, text/plain, */*',
+        },
+    });
+    const { token, basketId } = await loginViaApi(api, user);
+
+    return { api, token, basketId };
 }
