@@ -4,6 +4,13 @@ export type TestUser = {
     password: string;
 };
 
+function normalizeUserKey(value: string): string {
+    return value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
 function getPassword(envVarName: string, fallback: string): string {
     return process.env[envVarName] ?? fallback;
 }
@@ -38,3 +45,18 @@ export const USER_PW_MUTATOR: TestUser = {
     email: 'pwmutator@local.test',
     password: getPassword('USER_PW_MUTATOR_PASSWORD', DEFAULT_USER_PW_MUTATOR_PASSWORD),
 };
+
+/**
+ * Stateful tests should prefer per-run users so mutable resources like baskets
+ * start clean and do not introduce cross-test races under parallel execution.
+ */
+export function makeEphemeralTestUser(label: string, uniqueKey: string, password = 'test-ephemeral'): TestUser {
+    const normalizedLabel = normalizeUserKey(label);
+    const normalizedKey = normalizeUserKey(uniqueKey);
+
+    return {
+        label,
+        email: `${normalizedLabel}-${normalizedKey}@local.test`,
+        password,
+    };
+}
