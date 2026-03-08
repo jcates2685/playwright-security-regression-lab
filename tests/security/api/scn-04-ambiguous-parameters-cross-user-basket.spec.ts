@@ -61,8 +61,7 @@ function buildTestRunKey(testInfo: TestInfo): string {
 
 function buildCandidateProductIds(excludedProductIds: number[], maxProductId = 40): number[] {
     const excluded = new Set(excludedProductIds.filter((id) => Number.isFinite(id) && id > 0));
-    return Array.from({ length: maxProductId }, (_, index) => index + 1)
-        .filter((productId) => !excluded.has(productId));
+    return Array.from({ length: maxProductId }, (_, index) => index + 1).filter((productId) => !excluded.has(productId));
 }
 
 function mutationResultBasketId(text: string): string {
@@ -112,12 +111,7 @@ async function postRawBasketItemMutation(api: APIRequestContext, token: string, 
     };
 }
 
-async function findWorkingProductMutation(
-    api: APIRequestContext,
-    token: string,
-    excludedProductIds: number[],
-    buildPayload: (productId: number) => string,
-): Promise<ProductMutationCandidate> {
+async function findWorkingProductMutation(api: APIRequestContext, token: string, excludedProductIds: number[], buildPayload: (productId: number) => string): Promise<ProductMutationCandidate> {
     const attempts: Array<{ productId: number; status: number; responseSnippet: string }> = [];
 
     for (const productId of buildCandidateProductIds(excludedProductIds)) {

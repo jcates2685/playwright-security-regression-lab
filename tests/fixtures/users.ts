@@ -5,7 +5,10 @@ export type TestUser = {
 };
 
 function normalizeUserKey(value: string): string {
-    return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    return value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
 }
 
 function getPassword(envVarName: string, fallback: string): string {
