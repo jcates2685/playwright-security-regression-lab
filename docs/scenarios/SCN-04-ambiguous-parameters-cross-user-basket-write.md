@@ -8,43 +8,57 @@ owasp_secondary:
 # SCN-04: Ambiguous request parameters allow cross-user basket modification
 
 ## Summary
-A basket write operation can be directed to a different user's basket when the request contains ambiguous/duplicate identifier parameters. The server accepts the request and applies the write to a basket not owned by the authenticated user.
+A basket write operation can be directed to a different user's basket when the request contains duplicate `BasketId` keys with different values in the raw JSON body. The authorization layer reads one value (the attacker's basket), while the business logic reads a different one (the victim's basket), bypassing access controls.
 
 ## OWASP Top 10 Mapping (2025)
 - Primary: Broken Access Control
-- Secondary: Injection (parameter ambiguity)
+- Secondary: Parameter Injection / HTTP Request Smuggling
 
 ## What should be true (invariant)
-Basket write operations must be bound to the authenticated user, and requests with duplicate/ambiguous basket identifiers must be rejected or normalized safely.
+Basket write operations must validate and use a single, unambiguous basket identifier bound to the authenticated user. Requests with duplicate/conflicting parameters must be rejected.
 
 ## Preconditions
 - Two distinct users exist (User A and User B).
 - Two isolated sessions are used (separate browser contexts).
-- Both users have empty baskets (recommended for clarity).
+- Both users have distinct basket IDs.
 
 ## Observation (high level)
-- The basket write endpoint accepts requests where the basket identifier is supplied in an ambiguous way (duplicate/conflicting parameters).
-- The server processes the request successfully (2xx).
-- The resulting basket state change is observed in User B’s session, despite the request being initiated by User A.
+- The basket write endpoint accepts requests containing duplicate `BasketId` keys in the JSON body.
+- Different parsing layers interpret the parameters differently:
+  - Validation layer: reads first `BasketId` parameter (attacker's own basket) → ✓ passes check
+  - Business logic layer: reads last `BasketId` parameter (victim's basket) → bypasses check
+- The server processes the request with 200 OK.
+- User A's basket is modified despite the request originating from User B.
 
 ## Reproduction (no mechanics)
-1. Confirm sessions are isolated:
-   - In both sessions, `GET /rest/user/whoami` reflects different users.
-2. Record baseline basket state for A and B (empty/non-empty and visible contents).
-3. Perform a basket item add operation as User A using a request that includes duplicate/ambiguous basket identifiers.
+1. Confirm sessions are isolated using `GET /rest/user/whoami` from both sessions.
+2. Record the distinct BasketIDs for User A and User B.
+3. As User B, send a POST request to `/api/BasketItems/` with duplicate `BasketId` keys in the JSON body:
+   ```
+   POST /api/BasketItems/
+   Content-Type: application/json
+   
+   {
+     "ProductId": 6,
+     "BasketId": "USER_B_BASKET",
+     "BasketId": "USER_A_BASKET",
+     "quantity": 1
+   }
+   ```
 4. Verify outcome:
-   - User B’s basket contents change.
-   - User A’s basket contents do not reflect the change (or reflect a different change).
+   - Request returns 200 OK (not 403 Forbidden).
+   - User A's basket contains the newly added item.
 
 ## Impact
 - Integrity breach: one user can tamper with another user’s shopping cart.
-- Potential business impact: unwanted purchases, cart manipulation, trust erosion.
-- Indicates broken object-level authorization in write operations.
+- Potential business impact: unwanted purchases, cart manipulation, financial fraud.
+- Indicates insufficient parameter validation and broken object-level authorization.
 
 ## Suggested remediation
 - Derive the target basket exclusively from the authenticated session/user on the server.
-- Reject requests containing duplicate/conflicting identifier parameters (return 400).
-- Add centralized request validation to prevent parameter ambiguity from reaching business logic.
+- Reject requests containing duplicate parameters (return 400 Bad Request).
+- Normalize and validate all input parameters before processing.
+- Add centralized request validation at the HTTP layer to prevent parameter ambiguity.
 
 ## OWASP Top 10 (2025) Mapping
 - Categories:
