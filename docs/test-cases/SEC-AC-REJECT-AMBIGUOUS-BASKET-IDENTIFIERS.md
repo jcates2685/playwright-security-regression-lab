@@ -7,7 +7,7 @@ SEC-AC-REJECT-AMBIGUOUS-BASKET-IDENTIFIERS
 Broken Access Control / Request Validation
 
 ## Related Scenario
-SCN-05-ambiguous-parameters-cross-user-basket-write
+SCN-04-ambiguous-parameters-cross-user-basket-write
 
 ---
 
