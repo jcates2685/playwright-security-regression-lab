@@ -12,7 +12,7 @@ SCN-04-ambiguous-parameters-cross-user-basket-write
 ---
 
 ## Security Invariant
-A user must not be able to modify another user’s basket. Requests that specify basket identity ambiguously (duplicate/conflicting identifiers) must be rejected or handled safely.
+A user must not be able to modify another user's basket. Requests that specify basket identity ambiguously (duplicate/conflicting identifiers) must be rejected or handled safely.
 
 ---
 
@@ -27,7 +27,7 @@ A user must not be able to modify another user’s basket. Requests that specify
 1. Capture baseline:
    - Read basket contents for User A
    - Read basket contents for User B
-2. As User A, submit a basket add-item request that contains duplicate/conflicting basket identifiers.
+2. As User B, submit a basket add-item request that contains duplicate/conflicting basket identifiers.
 3. Re-read basket contents for both users.
 
 ---
@@ -36,14 +36,14 @@ A user must not be able to modify another user’s basket. Requests that specify
 - The server rejects the request with a stable 4xx (preferred: 400 Bad Request).
 - No basket contents change for either user.
 - If the system chooses to normalize instead of reject:
-  - the write must apply only to User A’s basket
-  - and must never affect User B
+  - the write must apply only to User B's basket
+  - and must never affect User A
 
 ---
 
 ## Actual Result (Observed)
 - The request is accepted (2xx).
-- User B’s basket contents change as a result of User A’s request.
+- User A's basket contents change as a result of User B's request.
 
 ---
 
@@ -60,10 +60,8 @@ A user must not be able to modify another user’s basket. Requests that specify
 
 ---
 
-## Automation Notes (Future)
-- API test with two sessions:
-  - baseline read A + B
-  - submit ambiguous identifier request as A
-  - assert:
-    - response is 4xx OR B is unchanged
-    - B must never change due to A’s write
+## Automation Notes
+- Automated in `tests/security/api/scn-04-ambiguous-parameters-cross-user-basket.spec.ts`.
+- Current automated coverage includes:
+  - `@evidence-pass`: proves an ambiguous `BasketId` request from User B is accepted and mutates User A's basket
+  - `@secure-invariant-fail`: asserts ambiguous basket writes are rejected or safely constrained to User B's basket and that User A never changes

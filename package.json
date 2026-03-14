@@ -7,11 +7,13 @@
         "doc": "docs"
     },
     "scripts": {
-        "test": "playwright test",
+        "test": "playwright test --grep @evidence-pass",
+        "test:all": "playwright test",
         "test:ui": "playwright test --ui",
         "test:evidence": "playwright test --grep @evidence-pass",
         "test:invariants": "playwright test --grep @secure-invariant-fail",
-        "test:fresh": "node scripts/lab-runner.cjs test",
+        "test:fresh": "node scripts/lab-runner.cjs test --grep @evidence-pass",
+        "test:fresh:all": "node scripts/lab-runner.cjs test",
         "test:fresh:evidence": "node scripts/lab-runner.cjs test --grep @evidence-pass",
         "test:fresh:invariants": "node scripts/lab-runner.cjs test --grep @secure-invariant-fail",
         "lint": "eslint .",

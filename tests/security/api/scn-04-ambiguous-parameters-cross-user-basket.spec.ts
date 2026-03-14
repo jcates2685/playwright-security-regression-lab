@@ -226,4 +226,82 @@ test.describe('SCN-04: duplicate BasketId enables cross-user basket mutation', (
             await apiB.dispose();
         }
     });
+
+    test('secure invariant: ambiguous BasketId must not let User B modify User A basket', { tag: '@secure-invariant-fail' }, async ({ baseURL }, testInfo) => {
+        test.info().annotations.push({
+            type: 'expected-on-vulnerable-target',
+            description: 'Juice Shop is expected to violate this invariant until the basket write path is fixed.',
+        });
+
+        const runKey = buildTestRunKey(testInfo);
+        const userA = makeEphemeralTestUser('SCN04-INVARIANT-A', `${runKey}-a`);
+        const userB = makeEphemeralTestUser('SCN04-INVARIANT-B', `${runKey}-b`);
+
+        const { api: apiA, token: tokenA, basketId: basketIdA } = await newAuthedApiContext(baseURL!, userA);
+        const { api: apiB, token: tokenB, basketId: basketIdB } = await newAuthedApiContext(baseURL!, userB);
+
+        try {
+            const setup = await test.step('capture each user basket state', async () => {
+                const userABefore = await fetchBasketSnapshotById(apiA, tokenA, basketIdA, 'User A before invariant check');
+                const userBBefore = await fetchBasketSnapshotById(apiB, tokenB, basketIdB, 'User B before invariant check');
+
+                expect(userABefore.basketId).not.toBe(userBBefore.basketId);
+
+                return {
+                    userABefore,
+                    userBBefore,
+                };
+            });
+
+            await test.step('submit ambiguous basket write as User B and assert secure handling', async () => {
+                const exploitSelection = await findWorkingProductMutation(
+                    apiB,
+                    tokenB,
+                    [...setup.userABefore.products, ...setup.userBBefore.products].map((product) => product.id),
+                    (productId) => `{"ProductId":${productId},"BasketId":"${setup.userBBefore.basketId}","BasketId":"${setup.userABefore.basketId}","quantity":1}`,
+                );
+                const exploitProductId = exploitSelection.id;
+                const exploitBody = exploitSelection.payload;
+                const exploitResult = exploitSelection.result;
+                const userAQtyBefore = setup.userABefore.products.find((product) => product.id === exploitProductId)?.quantity ?? 0;
+                const userBQtyBefore = setup.userBBefore.products.find((product) => product.id === exploitProductId)?.quantity ?? 0;
+
+                console.log('Secure invariant payload:', exploitBody);
+                console.log('Secure invariant response body:', exploitResult.text);
+
+                const userAAfter = await fetchBasketSnapshotById(apiA, tokenA, setup.userABefore.basketId, 'User A after invariant check');
+                const userBAfter = await fetchBasketSnapshotById(apiB, tokenB, setup.userBBefore.basketId, 'User B after invariant check');
+                const userAQtyAfter = userAAfter.products.find((product) => product.id === exploitProductId)?.quantity ?? 0;
+                const userBQtyAfter = userBAfter.products.find((product) => product.id === exploitProductId)?.quantity ?? 0;
+                const isRejected = exploitResult.status >= 400 && exploitResult.status < 500;
+                const isAccepted = exploitResult.status >= 200 && exploitResult.status < 300;
+                const mutatedBasketId = mutationResultBasketId(exploitResult.text);
+
+                expect.soft(userAQtyAfter, 'Ambiguous BasketId input must never modify User A basket.').toBe(userAQtyBefore);
+                expect.soft(
+                    isRejected || isAccepted,
+                    'Ambiguous basket writes must be rejected with 4xx or safely constrained to User B basket.',
+                ).toBeTruthy();
+                expect.soft(
+                    exploitResult.status,
+                    'Server errors are not a secure way to handle ambiguous basket identifiers.',
+                ).toBeLessThan(500);
+                expect.soft(
+                    !isRejected || userBQtyAfter === userBQtyBefore,
+                    'Rejected requests must not change User B basket either.',
+                ).toBeTruthy();
+                expect.soft(
+                    !isAccepted || mutatedBasketId === setup.userBBefore.basketId,
+                    'If the server accepts ambiguous input, it must keep the write bound to User B basket.',
+                ).toBeTruthy();
+                expect.soft(
+                    !isAccepted || userBQtyAfter === userBQtyBefore + 1,
+                    'Accepted ambiguous writes may only affect User B basket.',
+                ).toBeTruthy();
+            });
+        } finally {
+            await apiA.dispose();
+            await apiB.dispose();
+        }
+    });
 });

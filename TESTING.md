@@ -24,19 +24,22 @@ Examples:
 - user cannot access another user's order
 - cross-user basket writes are rejected
 
-## CI philosophy (future)
+## CI philosophy
 
 - PR CI runs only the expected-to-pass suites and stays green.
 - Nightly runs both suites and publishes reports/artifacts.
 
 ## Handy commands
 
+- `npm run test` -> run the green-by-default evidence suite
+- `npm run test:all` -> run the full suite, including expected-failing invariants
 - `npm run test:evidence` -> run `@evidence-pass`
 - `npm run test:invariants` -> run `@secure-invariant-fail`
 - `npm run lab:fresh` -> tear down the lab, clear local auth/report artifacts, and recreate the container
+- `npm run test:fresh` -> recreate the lab, run the evidence suite, then tear the lab down
+- `npm run test:fresh:all` -> recreate the lab, run the full suite, then tear the lab down
 - `npm run test:fresh:evidence` -> recreate the lab, run the evidence suite, then tear the lab down
 - `npm run test:fresh:invariants` -> recreate the lab, run the invariant suite, then tear the lab down
-- `npm run test:fresh` -> recreate the lab, run the full suite, then tear the lab down
 
 ## Test-user credentials
 

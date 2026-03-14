@@ -46,3 +46,23 @@ Near-term focus:
 - continue improving deterministic setup for stateful scenarios
 - tighten scenario-to-test-case traceability and CI suite wiring
 
+## Branch naming
+
+Use a typed branch prefix and keep names lowercase kebab case.
+
+Patterns:
+- scenario-bound work: `<type>/scn-XX-short-description`
+- repo-wide work: `<type>/short-description`
+
+Recommended branch types:
+- `feature` for new scenario coverage or new lab capabilities
+- `test` for regression or invariant test additions without broader feature work
+- `docs` for documentation-only changes
+- `chore` for maintenance, tooling, or CI updates
+
+Examples:
+- `test/scn-04-secure-invariant-basket-write`
+- `feature/scn-05-order-history-exposure`
+- `docs/rca-template-cleanup`
+- `chore/github-actions-playwright-cache`
+
