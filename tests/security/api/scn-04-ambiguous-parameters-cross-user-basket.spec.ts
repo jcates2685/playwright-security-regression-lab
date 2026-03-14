@@ -278,26 +278,11 @@ test.describe('SCN-04: duplicate BasketId enables cross-user basket mutation', (
                 const mutatedBasketId = mutationResultBasketId(exploitResult.text);
 
                 expect.soft(userAQtyAfter, 'Ambiguous BasketId input must never modify User A basket.').toBe(userAQtyBefore);
-                expect.soft(
-                    isRejected || isAccepted,
-                    'Ambiguous basket writes must be rejected with 4xx or safely constrained to User B basket.',
-                ).toBeTruthy();
-                expect.soft(
-                    exploitResult.status,
-                    'Server errors are not a secure way to handle ambiguous basket identifiers.',
-                ).toBeLessThan(500);
-                expect.soft(
-                    !isRejected || userBQtyAfter === userBQtyBefore,
-                    'Rejected requests must not change User B basket either.',
-                ).toBeTruthy();
-                expect.soft(
-                    !isAccepted || mutatedBasketId === setup.userBBefore.basketId,
-                    'If the server accepts ambiguous input, it must keep the write bound to User B basket.',
-                ).toBeTruthy();
-                expect.soft(
-                    !isAccepted || userBQtyAfter === userBQtyBefore + 1,
-                    'Accepted ambiguous writes may only affect User B basket.',
-                ).toBeTruthy();
+                expect.soft(isRejected || isAccepted, 'Ambiguous basket writes must be rejected with 4xx or safely constrained to User B basket.').toBeTruthy();
+                expect.soft(exploitResult.status, 'Server errors are not a secure way to handle ambiguous basket identifiers.').toBeLessThan(500);
+                expect.soft(!isRejected || userBQtyAfter === userBQtyBefore, 'Rejected requests must not change User B basket either.').toBeTruthy();
+                expect.soft(!isAccepted || mutatedBasketId === setup.userBBefore.basketId, 'If the server accepts ambiguous input, it must keep the write bound to User B basket.').toBeTruthy();
+                expect.soft(!isAccepted || userBQtyAfter === userBQtyBefore + 1, 'Accepted ambiguous writes may only affect User B basket.').toBeTruthy();
             });
         } finally {
             await apiA.dispose();
