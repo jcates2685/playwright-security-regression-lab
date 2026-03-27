@@ -23,6 +23,10 @@ Start here:
 2. `TESTING.md` (explains test suites and expected failures)
 3. `docs/scenarios/` (scenario writeups as they’re added)
 
+If you are reviewing test structure specifically, also see:
+
+- `tests/support/api/README.md`
+
 ## Scenarios and Tests
 
 **Scenarios** (`docs/scenarios/`) describe security vulnerabilities found in the application. Each scenario documents what went wrong, how to reproduce it, and the OWASP category.
