@@ -41,6 +41,25 @@ Examples:
 - `npm run test:fresh:evidence` -> recreate the lab, run the evidence suite, then tear the lab down
 - `npm run test:fresh:invariants` -> recreate the lab, run the invariant suite, then tear the lab down
 
+## Support structure
+
+Test support code is split intentionally:
+
+- `tests/support/api/` contains thin domain-specific wrappers over `APIRequestContext`
+- `tests/support/pages/` contains UI page objects for browser interactions
+- scenario specs keep exploit-specific payloads and assertions inline when the mechanics are part of the finding
+
+Rule of thumb:
+
+- abstract repeated transport and auth behavior
+- abstract stable endpoint calls such as account, basket, and order helpers
+- do not hide malformed payloads or ambiguity tricks behind generic helper names
+
+SCN-04 is the model for this split:
+
+- shared basket reads and standard writes live in `tests/support/api/basket-api.ts`
+- the duplicate-`BasketId` exploit body remains visible in the scenario spec
+
 ## Test-user credentials
 
 - Default lab-only passwords are defined for local use.

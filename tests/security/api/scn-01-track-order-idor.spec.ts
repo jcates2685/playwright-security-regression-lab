@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { newAuthedContext } from '../../fixtures/sessions';
+import { newAuthedApiContext, newAuthedContext } from '../../fixtures/sessions';
 import { USER_A, USER_B } from '../../fixtures/users';
+import { OrdersApi } from '../../support/api/orders-api';
 import { CheckoutPage } from '../../support/pages/checkout-page';
 
 test.describe.serial('SCN-01: Track Order IDOR', () => {
@@ -9,19 +10,25 @@ test.describe.serial('SCN-01: Track Order IDOR', () => {
 
     test.beforeAll(async ({ browser, baseURL }) => {
         const { context, page } = await newAuthedContext(browser, baseURL!, USER_A);
+        const { api } = await newAuthedApiContext(baseURL!, USER_A);
 
-        const checkout = new CheckoutPage(page);
-        await checkout.addFirstItemToBasket();
-        await checkout.openCheckout();
+        try {
+            const checkout = new CheckoutPage(page);
+            await checkout.addFirstItemToBasket();
+            await checkout.openCheckout();
 
-        capturedOrderId = await checkout.placeOrder();
-        expect(capturedOrderId).toBeTruthy();
+            capturedOrderId = await checkout.placeOrder();
+            expect(capturedOrderId).toBeTruthy();
 
-        const userATrackOrderResponse = await page.request.get(`${baseURL}/rest/track-order/${capturedOrderId}`);
-        expect(userATrackOrderResponse.status()).toBe(200);
-        userATrackOrderBody = await userATrackOrderResponse.json();
+            const ordersApi = new OrdersApi(api);
+            const userATrackOrderResponse = await ordersApi.trackOrder(capturedOrderId);
+            expect(userATrackOrderResponse.status()).toBe(200);
+            userATrackOrderBody = await userATrackOrderResponse.json();
 
-        await context.close();
+            await context.close();
+        } finally {
+            await api.dispose();
+        }
     });
 
     test('evidence: User B can view User A tracked order details', { tag: '@evidence-pass' }, async ({ browser, baseURL }) => {
