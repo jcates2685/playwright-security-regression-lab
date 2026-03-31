@@ -16,7 +16,7 @@ SCN-01-track-order-idor
 
 ## Purpose
 
-Verify that a user cannot view another user’s order details by supplying a valid order tracking ID that does not belong to them.
+Verify that a user cannot view another user's order details by supplying a valid order tracking ID that does not belong to them.
 
 This test ensures enforcement of object-level authorization on the order tracking endpoint.
 
@@ -35,7 +35,7 @@ A user must only be able to view order details for orders they own.
     - **User B**
 - Sessions are isolated (e.g., separate browser profiles or incognito window)
 - User A has successfully placed at least one order
-- The order tracking ID for User A’s order is known
+- The order tracking ID for User A's order is known
 
 ---
 
@@ -47,7 +47,7 @@ A user must only be able to view order details for orders they own.
 
 ## Test Steps
 
-### Step 1 – Confirm identity (control)
+### Step 1 - Confirm identity (control)
 
 1. Log in as **User A**
 2. Request:
@@ -56,7 +56,7 @@ A user must only be able to view order details for orders they own.
 
 ---
 
-### Step 2 – Positive control (expected pass)
+### Step 2 - Positive control (expected pass)
 
 1. While logged in as **User A**, request:
     - `GET /rest/track-order/{orderId_A}`
@@ -72,7 +72,7 @@ A user must only be able to view order details for orders they own.
 
 ---
 
-### Step 3 – Cross-user access attempt (security check)
+### Step 3 - Cross-user access attempt (security check)
 
 1. Log in as **User B** in a separate session
 2. Request:
@@ -99,7 +99,7 @@ A user must only be able to view order details for orders they own.
 
 ## Security Impact
 
-- Unauthorized disclosure of another user’s purchase history
+- Unauthorized disclosure of another user's purchase history
 - Exposure of order metadata and internal references
 - Tracking IDs may be shared, logged, or guessed, enabling abuse at scale
 
@@ -129,11 +129,9 @@ This test should be retained as a regression guard to ensure:
 
 ---
 
-## Automation Notes (Future)
+## Automation Notes
 
-- Can be automated at the API layer
-- Requires deterministic test data seeding:
-    - user creation
-    - order placement
-    - capture of `orderId`
-- Suitable for nightly runs initially, then CI once stable
+- Automated in `tests/security/api/scn-01-track-order-idor.spec.ts`.
+- Current automated coverage includes:
+    - `@evidence-pass`: proves User B can retrieve User A's tracked order details
+    - `@secure-invariant-fail`: asserts User B receives an authorization failure or safe not-found response and no order metadata
