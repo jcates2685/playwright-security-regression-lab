@@ -24,7 +24,7 @@ Password recovery must not disclose whether an account exists for a given email 
 
 - OWASP Juice Shop is running.
 - At least one known user exists (e.g., User B: userb@local.test).
-- Access to DevTools (Network → Fetch/XHR).
+- Access to DevTools (Network -> Fetch/XHR).
 
 ---
 
@@ -38,7 +38,7 @@ Password recovery must not disclose whether an account exists for a given email 
 ## Steps
 
 1. Navigate to Password Recovery.
-2. Open DevTools → Network → Fetch/XHR.
+2. Open DevTools -> Network -> Fetch/XHR.
 3. Enter `email_existing` and blur the email field.
 4. Record:
     - request: `GET /rest/user/security-question?email=<...>`
@@ -94,9 +94,9 @@ Prevents reintroduction of account enumeration through password recovery UI beha
 
 ---
 
-## Automation Notes (Future)
+## Automation Notes
 
-- UI automation:
-    - assert that entering existing vs fake email results in identical UI state transitions
-- API checks (if applicable):
-    - assert response body/shape does not differ in a way that changes UI behavior
+- Automated in `tests/security/ui/scn-03-password-recovery-user-enumeration.spec.ts`.
+- Current automated coverage includes:
+    - `@evidence-pass`: proves an existing email enables the recovery flow while a non-existent email does not
+    - `@secure-invariant-fail`: asserts existing and non-existent emails must produce indistinguishable recovery behavior

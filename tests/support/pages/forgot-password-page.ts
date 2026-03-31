@@ -50,4 +50,14 @@ export class ForgotPasswordPage {
     async securityQuestionIsEnabled(): Promise<boolean> {
         return this.page.locator('#securityAnswer').isEnabled();
     }
+
+    async securityQuestionText(): Promise<string | null> {
+        const question = this.page.locator('#securityQuestion');
+        if (!(await question.isVisible().catch(() => false))) {
+            return null;
+        }
+
+        const text = await question.textContent();
+        return text?.trim() || null;
+    }
 }
