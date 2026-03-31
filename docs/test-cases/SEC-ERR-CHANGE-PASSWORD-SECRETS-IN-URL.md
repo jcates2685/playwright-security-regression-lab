@@ -76,4 +76,6 @@ Retain this test to ensure sensitive values are never sent in URLs.
 ## Automation Notes
 
 - Automated in `tests/security/ui/scn-02-change-password-ui-insecure-request.spec.ts`.
-- Current evidence assertion checks that `/rest/user/change-password` is called with GET and query-string secrets.
+- Current automated coverage includes:
+    - `@evidence-pass`: proves `/rest/user/change-password` is called with GET and query-string secrets
+    - `@secure-invariant-fail`: asserts password change must use POST/PATCH and must not place `current`, `new`, or `repeat` in the URL

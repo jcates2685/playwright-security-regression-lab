@@ -81,4 +81,7 @@ Retain to ensure required-field validation remains enforced and server stability
 ## Automation Notes
 
 - This case is API-specific.
-- Automated in `tests/security/api/scn-02-change-password-api-error-handling.spec.ts` (API-direct evidence case).
+- Automated in `tests/security/api/scn-02-change-password-api-error-handling.spec.ts`.
+- Current automated coverage includes:
+    - `@evidence-pass`: proves missing current password can trigger API-direct HTTP 500
+    - `@secure-invariant-fail`: asserts missing current password must return a controlled 4xx response without stack-trace leakage

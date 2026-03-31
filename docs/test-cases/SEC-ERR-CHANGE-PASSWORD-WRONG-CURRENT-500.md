@@ -81,4 +81,7 @@ Keep as a regression test to ensure invalid inputs never produce server errors.
 ## Automation Notes
 
 - This case is API-specific.
-- Automated in `tests/security/api/scn-02-change-password-api-error-handling.spec.ts` (API-direct evidence case).
+- Automated in `tests/security/api/scn-02-change-password-api-error-handling.spec.ts`.
+- Current automated coverage includes:
+    - `@evidence-pass`: proves wrong current password can trigger API-direct HTTP 500
+    - `@secure-invariant-fail`: asserts wrong current password must return a controlled 4xx response without stack-trace leakage
