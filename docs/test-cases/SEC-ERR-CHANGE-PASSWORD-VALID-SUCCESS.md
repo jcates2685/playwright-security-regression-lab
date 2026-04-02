@@ -70,6 +70,8 @@ Important control case to catch regressions affecting the password change flow.
 
 ---
 
-## Automation Notes (Future)
+## Automation Notes
 
-- Automate by performing change-password with seeded test accounts and verifying authentication with new credentials.
+- Automated in `tests/security/ui/scn-02-change-password-valid-success.spec.ts`.
+- Coverage:
+    - `@evidence-pass`: drives the UI change-password flow for an ephemeral user, then verifies fresh login with the new password and confirms the old password no longer authenticates
